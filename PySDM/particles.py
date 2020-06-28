@@ -8,11 +8,11 @@ Created at 09.11.2019
 import numpy as np
 from PySDM.state.state import State
 from PySDM.stats import Stats
-
+from PySDM.physics.planet_data_factory import PlanetDataFactory
 
 class Particles:
 
-    def __init__(self, n_sd, backend, stats=None):
+    def __init__(self, n_sd, backend, planet_name="Earth", stats=None):
         self.__n_sd = n_sd
 
         self.backend = backend
@@ -28,6 +28,8 @@ class Particles:
         self.croupier = 'local'
         self.sorting_scheme = 'default'
         self.condensation_solver = None
+
+        self.constants = PlanetDataFactory.create(planet_name)
 
     @property
     def n_sd(self) -> int:

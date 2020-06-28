@@ -7,6 +7,7 @@ Created at 09.11.2019
 
 import numpy as np
 
+from PySDM.physics.planet_data_factory import PlanetDataFactory
 from PySDM.particles import Particles
 from PySDM.initialisation.multiplicities import discretise_n  # TODO
 from PySDM.state.state_factory import StateFactory
@@ -19,11 +20,12 @@ from PySDM.attributes.cell.cell_id import CellID
 
 class ParticlesBuilder:
 
-    def __init__(self, n_sd, backend, stats=None):
-        self.particles = Particles(n_sd, backend, stats)
+    def __init__(self, n_sd, backend, stats=None, planet_name="Earth"):
+        self.particles = Particles(n_sd, backend, planet_name, stats)
         self.req_attr = {'n': Multiplicities(self), 'volume': Volume(self), 'cell id': CellID(self)}
         self.aerosol_radius_threshold = 0
         self.condensation_params = None
+
 
     def _set_condensation_parameters(self, coord, adaptive=True):
         self.condensation_params = {'coord': coord, 'adaptive': adaptive}
