@@ -19,7 +19,7 @@ class Kinematic1D(_Moist):
         self._tmp["rhod"] = rhod
 
     def get_qv(self) -> np.ndarray:
-        return self.core.dynamics['EulerianAdvection'].solvers.advectee.get()
+        return self.core.dynamics['EulerianAdvection'].solvers.advectee
 
     def get_thd(self) -> np.ndarray:
         return self.thd0

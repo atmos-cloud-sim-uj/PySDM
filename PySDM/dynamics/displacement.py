@@ -15,7 +15,7 @@ class Displacement:
         self.courant = None
         self.displacement = None
         self.temp = None
-        self.courant_field = courant_field
+        self.init_courant_field = courant_field
         self.precipitation_in_last_step = 0
 
     def register(self, builder):
@@ -31,17 +31,23 @@ class Displacement:
             raise NotImplementedError()
         self.scheme = method
 
-        self.dimension = len(self.courant_field)
+        self.dimension = len(self.init_courant_field)
         if self.dimension == 1:
-            grid = (self.courant_field[0].shape[0] - 1,)
+            grid = (self.init_courant_field[0].shape[0] - 1,)
         elif self.dimension == 2:
-            grid = (self.courant_field[1].shape[0], self.courant_field[0].shape[1])
+            grid = (self.init_courant_field[1].shape[0], self.init_courant_field[0].shape[1])
         else:
             raise NotImplementedError()
         self.grid = self.core.Storage.from_ndarray(np.array(grid, dtype=np.int64))
-        self.courant = [self.core.Storage.from_ndarray(self.courant_field[i]) for i in range(self.dimension)]
         self.displacement = self.core.Storage.from_ndarray(np.zeros((self.dimension, self.core.n_sd)))
         self.temp = self.core.Storage.from_ndarray(np.zeros((self.dimension, self.core.n_sd), dtype=np.int64))
+
+        self.set_courant_field(self.init_courant_field)
+        self.init_courant_field = None
+
+    def set_courant_field(self, courant_field):
+        # TODO: prevent allocation if courant is not None
+        self.courant = [self.core.Storage.from_ndarray(courant_field[i]) for i in range(self.dimension)]
 
     def __call__(self):
         # TIP: not need all array only [idx[:sd_num]]

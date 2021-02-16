@@ -29,18 +29,26 @@ class MPDATA_1D:
             halo=options.n_halo,
             boundary_conditions=bcs
         )
-        self.advectee = ScalarField(
+        advectee = ScalarField(
             data=advectee_of_zZ_at_t0(arakawa_c.z_scalar_coord(grid)),
             halo=options.n_halo,
             boundary_conditions=bcs
         )
-        self.solver = Solver(stepper=stepper, advectee=self.advectee, advector=advector, g_factor=g_factor)
+        self.solver = Solver(stepper=stepper, advectee=advectee, advector=advector, g_factor=g_factor)
 
     def __call__(self):
         self.t += .5 * self.dt
-        self.solver.advector.get_component(0)[:] = self.advector_of_t(self.t)
+        self.courant_field[:] = self.advector_of_t(self.t)
         try:  # TODO #417: move the try-except logic to within PyMPDATA
             self.solver.advance(1)
         except NumbaExperimentalFeatureWarning:
             pass
         self.t += .5 * self.dt
+
+    @property
+    def courant_field(self):
+        return self.solver.advector.get_component(0)
+
+    @property
+    def advectee(self):
+        return self.solver.advectee.get()
