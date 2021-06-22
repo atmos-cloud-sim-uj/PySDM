@@ -31,7 +31,7 @@ class TestFormulae:
             kp = .5
             rd = .1 * si.micrometre
             T = 300 * si.kelvins
-            sgm = constants.sgm
+            sgm = constants.sgm_w
 
             # Act
             r_cr = sut(kp, rd**3, T, sgm)

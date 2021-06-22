@@ -42,7 +42,7 @@ def r_wet_init(r_dry: np.ndarray, environment, kappa, cell_id: np.ndarray = None
             cid = cell_id[i]
             # root-finding initial guess
             a = r_d
-            b = r_cr(kappa, r_d**3, T[cid], const.sgm)
+            b = r_cr(kappa, r_d**3, T[cid], const.sgm_w)
             # minimisation
             args = (
                 T[cid],

@@ -4,4 +4,4 @@ ghapi
 pytest
 
 # note: if cloning both PySDM and PySDM examples, consider "pip install -e"
-git+git://github.com/atmos-cloud-sim-uj/PySDM-examples@18c23c4#egg=PySDM-examples
+git+git://github.com/claresinger/PySDM-examples@219cb6a#egg=PySDM-examples
