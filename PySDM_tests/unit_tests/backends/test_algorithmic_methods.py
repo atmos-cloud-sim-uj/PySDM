@@ -27,6 +27,8 @@ def test_pair_indices(i, idx, is_first_in_pair, expected):
     assert expected == actual
 
 
+N = 2*17 + 2
+
 class TestAlgorithmicMethods:
     @staticmethod
     @pytest.mark.parametrize("dt_left, cell_start, expected", [
@@ -48,6 +50,7 @@ class TestAlgorithmicMethods:
     @pytest.mark.parametrize(
         "gamma, idx, n, cell_id, dt_left, dt, dt_max, is_first_in_pair, expected_dt_left, expected_n_substep", [
             ((10.,), (0, 1), (44, 44), (0, 0), (10.,), 10., 10., (True, False), (9.,), (1,)),
+            ([1.]*(N//2-1) + [10.] + [1.]*(N//2-1), range(N), [44]*N, [0]*N, (10.,), 10., 10., [i%2 == 0 for i in range(N)], (9.,), (1,)),
             ((10.,), (0, 1), (44, 44), (0, 0), (10.,), 10., .1, (True, False), (9.9,), (1,)),
             ((0.,), (0, 1), (44, 44), (0, 0), (10.,), 10., 10., (False, True), (0.,), (1,)),
             ((10.,), (0, 1), (440, 44), (0, 0), (10.,), 10., 10., (True, False), (0.,), (1,)),

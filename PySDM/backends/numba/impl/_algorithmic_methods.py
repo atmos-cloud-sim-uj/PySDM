@@ -1,6 +1,8 @@
 import numba
 import numpy as np
 
+from PySDM.backends.numba.impl._atomic_operations import atomic_min
+
 from PySDM.backends.numba import conf
 from PySDM.backends.numba.storage import Storage
 
@@ -40,9 +42,12 @@ class AlgorithmicMethods:
     @numba.njit(**conf.JIT_FLAGS)
     def adaptive_sdm_gamma_body(gamma, idx, length, n, cell_id, dt_left, dt, dt_range, is_first_in_pair,
                                 stats_n_substep, stats_dt_min):
-        dt_todo = np.empty_like(dt_left)
+        dt_todo = np.empty(dt_left.shape, dtype=np.uint64)
+        stats_dt_min_uint = np.empty(stats_dt_min.shape, dtype=np.uint64)
+        coef = 2 ** 44
         for cid in numba.prange(len(dt_todo)):
-            dt_todo[cid] = min(dt_left[cid], dt_range[1])
+            dt_todo[cid] = min(dt_left[cid], dt_range[1]) * coef
+        stats_dt_min_uint[:] = stats_dt_min[:] * coef
         for i in range(length // 2):  # TODO #571
             if gamma[i] == 0:
                 continue
@@ -51,17 +56,18 @@ class AlgorithmicMethods:
             dt_optimal = dt * prop / gamma[i]
             cid = cell_id[j]
             dt_optimal = max(dt_optimal, dt_range[0])
-            dt_todo[cid] = min(dt_todo[cid], dt_optimal)
-            stats_dt_min[cid] = min(stats_dt_min[cid], dt_optimal)
+            atomic_min(dt_todo, cid, int(dt_optimal * coef))
+            atomic_min(stats_dt_min_uint, cid, int(dt_optimal * coef))
         for i in numba.prange(length // 2):
             if gamma[i] == 0:
                 continue
             j, _ = pair_indices(i, idx, is_first_in_pair)
-            gamma[i] *= dt_todo[cell_id[j]] / dt
+            gamma[i] *= dt_todo[cell_id[j]] / dt / coef
         for cid in numba.prange(len(dt_todo)):
-            dt_left[cid] -= dt_todo[cid]
+            dt_left[cid] -= dt_todo[cid] / coef
             if dt_todo[cid] > 0:
                 stats_n_substep[cid] += 1
+        stats_dt_min[:] = stats_dt_min_uint[:] / coef
 
     @staticmethod
     def adaptive_sdm_gamma(gamma, n, cell_id, dt_left, dt, dt_range, is_first_in_pair, stats_n_substep, stats_dt_min):
