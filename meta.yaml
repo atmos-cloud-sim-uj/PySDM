@@ -1,0 +1,40 @@
+{% set name = "pysdm" %}
+{% set version = "1.4" %}
+
+package:
+  name: "{{ name }}"
+  version: "{{ version }}"
+
+source:
+  git_url: "https://github.com/atmos-cloud-sim-uj/PySDM.git"
+  git_rev: 83649d5af8a949f355debbb8743765c520810cc7 
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  build:
+    - pip
+    - python
+    - setuptools_scm
+    - thrustrtc
+    - curandrtc
+
+  run:
+    - pip
+    - python
+    - numpy
+    - numba
+    - pint
+    - chempy
+    - scipy
+    - pyevtk
+    - thrustrtc
+    - curandrtc
+
+about:
+  home: "https://atmos-cloud-sim-uj.github.io/PySDM/"
+  license: GPL3
+  license_family: GPL
+  summary: "Pythonic particle-based (super-droplet) warm-rain/aqueous-chemistry cloud microphysics package with box, parcel & 1D/2D prescribed-flow examples in Python, Julia and Matlab"
